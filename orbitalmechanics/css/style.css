@@ -20,34 +20,23 @@ body, html {
     padding: 10px;
 }
 
-.tool-button {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 16px;
-    margin-right: 10px;
-    cursor: pointer;
-}
-
-
-
 #control-panel {
     top: 50px;
     left: 20px;
+    width: 300px;
     display: flex;
-    flex-direction: column; /* Stack children vertically */
-    align-items: start; /* Align items to the start of the flex container */
+    flex-direction: column;
+    align-items: start;
     padding: 10px;
-    background-color: rgba(0, 0, 0, 0.8); /* Ensure background matches the toolbar */
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 5px;
 }
 
 .input-group {
-    margin-bottom: 10px; /* Space between the input groups */
+    margin-bottom: 10px;
 }
 
-
-
-input[type="text"] {
+input[type="text"], input[type="range"] {
     color: white;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid #aaa;
@@ -69,34 +58,31 @@ button:hover {
 }
 
 canvas {
-    position: absolute;
+    position:absolute;
     top: 150px;
     width: 100%;
     height: calc(100% - 150px);
 }
 
-.time-step {
-    margin-left:0cm;
-}
-
-
-#infoPanel {
-    position: fixed;
-    top: 100px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.9);
-    color: white;
-    padding: 10px;
-    width: 250px;
-    display: none; /* initially hidden */
-}
-
-#orbitParameterInputs label {
-    display: block;
-    margin-top: 5px;
-    color: white;
-}
-
-#orbitParameterInputs input[type="range"] {
+#orbitParameters {
+    display: none;
+    flex-direction: column;
     width: 100%;
+    background: rgba(50, 50, 50, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    margin-top: 5px;
+}
+
+.input-slider-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.input-slider-container label, .input-slider-container output {
+    flex: 1;
+    text-align: center;
+    color: white;
 }
