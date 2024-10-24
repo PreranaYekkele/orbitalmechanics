@@ -4,20 +4,21 @@ body, html {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color: #000;
-    color: white;
-    font-family: Arial, sans-serif;
+    background-color: #0e0e10;
+    color:  #ccc;
+    font-family: 'Lucida Grande', Arial ,sans-serif;
 }
 
 #toolbar, #control-panel {
-    position: fixed;
+    position: fixed; /* Ensures the toolbar is always visible on top */
     top: 0;
-    left: 20px;
+    left: 0;
     width: 100%;
     display: flex;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.8);
-    padding: 10px;
+    background-color: rgba(20, 20, 20, 0.95); /* Darker and more transparent background */
+    padding: 10px 20px; /* Adjust padding and possibly add horizontal padding */
+    z-index: 1000; /* Higher z-index to keep it above the canvas */
 }
 
 #control-panel {
@@ -30,7 +31,29 @@ body, html {
     padding: 10px;
     background-color: rgba(0, 0, 0, 0.8);
     border-radius: 5px;
+    z-index: 15; /* Even higher to ensure it's on top of the toolbar */
 }
+
+canvas {
+    position: absolute;
+    top: 150px;
+    width: 100%;
+    height: calc(100% - 150px);
+    z-index: 1; /* Lower z-index to keep it below interactive controls */
+}
+
+#orbitParameters {
+    display: none; /* Initially hidden */
+    flex-direction: column;
+    width: 100%;
+    background: rgba(50, 50, 50, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    margin-top: 5px;
+    z-index: 20; /* Ensures it is above all other UI elements */
+}
+
 
 .input-group {
     margin-bottom: 10px;
@@ -44,6 +67,7 @@ input[type="text"], input[type="range"] {
     margin-right: 10px;
 }
 
+
 button {
     background-color: #333;
     border: none;
@@ -55,24 +79,6 @@ button {
 
 button:hover {
     background-color: #555;
-}
-
-canvas {
-    position:absolute;
-    top: 150px;
-    width: 100%;
-    height: calc(100% - 150px);
-}
-
-#orbitParameters {
-    display: none;
-    flex-direction: column;
-    width: 100%;
-    background: rgba(50, 50, 50, 0.8);
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    margin-top: 5px;
 }
 
 .input-slider-container {
