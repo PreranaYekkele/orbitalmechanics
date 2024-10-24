@@ -24,19 +24,15 @@
     <div id="control-panel">
         <div class="input-group">
             <input type="text" id="orbitName" placeholder="Enter orbit name">
-            <button onclick="toggleOrbitParameters()">Add Orbit</button>
+            <button onclick="addOrbit()">Add Orbit</button>
         </div>
         <div id="orbitParameters" style="display: none;">
-            <label>a (Semi-Major Axis): <input type="range" id="semiMajorAxis" min="1" max="10" value="2.7" step="0.1" onchange="updateOrbit()"></label>
-            <label>e (Eccentricity): <input type="range" id="eccentricity" min="0" max="1" value="0.6" step="0.01" onchange="updateOrbit()"></label>
-            <label>i (Inclination): <input type="range" id="inclination" min="0" max="180" value="0" step="1" onchange="updateOrbit()"></label>
-            <label>ω (Argument of Periapsis): <input type="range" id="argumentOfPeriapsis" min="0" max="360" value="90" step="1" onchange="updateOrbit()"></label>
-            <label>Ω (Longitude of Ascending Node): <input type="range" id="longitudeOfAscendingNode" min="0" max="360" value="0" step="1" onchange="updateOrbit()"></label>
-            <label>ν (True Anomaly): <input type="range" id="trueAnomaly" min="0" max="360" value="0" step="1" onchange="updateOrbit()"></label>
-        </div>
-        <div class="input-group">
-            <input type="text" id="launchName" placeholder="Enter launch name">
-            <button onclick="addLaunch()">Add Launch</button>
+            <label>a (Semi-Major Axis): <input type="range" id="semiMajorAxis" min="1" max="10" value="2.7" step="0.1" onchange="updateOrbit()"><span id="semiMajorAxisValue">2.7</span></label>
+            <label>e (Eccentricity): <input type="range" id="eccentricity" min="0" max="1" value="0.6" step="0.01" onchange="updateOrbit()"><span id="eccentricityValue">0.6</span></label>
+            <label>i (Inclination): <input type="range" id="inclination" min="0" max="180" value="0" step="1" onchange="updateOrbit()"><span id="inclinationValue">0</span></label>
+            <label>ω (Argument of Periapsis): <input type="range" id="argumentOfPeriapsis" min="0" max="360" value="90" step="1" onchange="updateOrbit()"><span id="argumentOfPeriapsisValue">90</span></label>
+            <label>Ω (Longitude of Ascending Node): <input type="range" id="longitudeOfAscendingNode" min="0" max="360" value="0" step="1" onchange="updateOrbit()"><span id="longitudeOfAscendingNodeValue">0</span></label>
+            <label>ν (True Anomaly): <input type="range" id="trueAnomaly" min="0" max="360" value="0" step="1" onchange="updateOrbit()"><span id="trueAnomalyValue">0</span></label>
         </div>
     </div>
     <canvas id="renderCanvas" touch-action="none"></canvas>
