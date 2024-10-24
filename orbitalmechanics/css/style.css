@@ -1,0 +1,102 @@
+body, html {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #000;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+#toolbar, #control-panel {
+    position: fixed;
+    top: 0;
+    left: 20px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 10px;
+}
+
+.tool-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+
+
+#control-panel {
+    top: 50px;
+    left: 20px;
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+    align-items: start; /* Align items to the start of the flex container */
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.8); /* Ensure background matches the toolbar */
+}
+
+.input-group {
+    margin-bottom: 10px; /* Space between the input groups */
+}
+
+
+
+input[type="text"] {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid #aaa;
+    padding: 5px;
+    margin-right: 10px;
+}
+
+button {
+    background-color: #333;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #555;
+}
+
+canvas {
+    position: absolute;
+    top: 150px;
+    width: 100%;
+    height: calc(100% - 150px);
+}
+
+.time-step {
+    margin-left:0cm;
+}
+
+
+#infoPanel {
+    position: fixed;
+    top: 100px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 10px;
+    width: 250px;
+    display: none; /* initially hidden */
+}
+
+#orbitParameterInputs label {
+    display: block;
+    margin-top: 5px;
+    color: white;
+}
+
+#orbitParameterInputs input[type="range"] {
+    width: 100%;
+}
