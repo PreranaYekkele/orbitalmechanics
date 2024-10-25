@@ -5,34 +5,25 @@ var speedFactor = 1;
 var earth;
 var canvas = document.getElementById('renderCanvas');
 var engine = new BABYLON.Engine(canvas, true);
-window.addEventListener('DOMContentLoaded', function() {
-    
-    scene = createScene();
 
+window.addEventListener('DOMContentLoaded', function() {
+    scene = createScene();
     document.getElementById('addOrbitButton').addEventListener('click', function() {
-        addOrbit(getOrbitParams());
+        const params = getOrbitParams();
+        orbits.forEach((orbit, index) => updateOrbitVisualization(index, params));
         document.getElementById('orbitParameters').style.display = 'block';
     });
-
-    setupEventListeners(); // Setup listeners for orbit parameters
-
+    setupParameterListeners();
     engine.runRenderLoop(function () {
         if (simulationRunning) {
             scene.render();
             earth.rotation.y += 0.001 * speedFactor;
         }
     });
-
     window.addEventListener('resize', function() {
         engine.resize();
     });
 });
-
-function setupEventListeners() {
-    document.querySelectorAll('.orbit-param').forEach(input => {
-        input.addEventListener('input', updateOrbit);
-    });
-}
 
 function createScene() {
     var scene = new BABYLON.Scene(engine);
@@ -63,50 +54,77 @@ function getOrbitParams() {
     };
 }
 
-function addOrbit(params) {
-    var newOrbit = createOrbit(params);
-    orbits.push(newOrbit);
+function updateOrbitVisualization(orbitIndex, params) {
+    if (orbits[orbitIndex]) {
+        orbits[orbitIndex].dispose(); // Dispose of the current orbit visualization if it exists
+    }
+
+    orbits[orbitIndex] = createOrbit(params, orbitIndex);
 }
 
-function updateOrbit() {
-    orbits.forEach((orbit, index) => {
-        orbit.dispose(); // Remove current orbit
-        orbits[index] = createOrbit(getOrbitParams()); // Recreate orbit with updated parameters
-    });
-}
-
-function createOrbit(params) {
-    var path = calculateOrbitPath(params);
-    var orbit = BABYLON.MeshBuilder.CreateLines("orbit", { points: path }, scene);
-    orbit.color = new BABYLON.Color3(1, 1, 1);
+function createOrbit(params, orbitIndex) {
+    var path = calculateOrbitPath(params, orbitIndex);
+    var orbit = BABYLON.MeshBuilder.CreateLines("orbit" + orbitIndex, { points: path }, scene);
+    switch (orbitIndex) {
+        case 0: // White orbit
+            orbit.color = new BABYLON.Color3(1, 1, 1);
+            break;
+        case 1: // Green orbit
+            orbit.color = new BABYLON.Color3(0, 1, 0);
+            break;
+        case 2: // Blue orbit
+            orbit.color = new BABYLON.Color3(0, 0, 1);
+            break;
+    }
     return orbit;
 }
 
-function calculateOrbitPath(params) {
+function calculateOrbitPath(params, orbitIndex) {
     var path = [];
-    var steps = 360; // The number of points to calculate the ellipse
+    var steps = 360;
+    var radiansPerStep = (2 * Math.PI) / steps;
+
     for (var i = 0; i <= steps; i++) {
-        var angle = (i / steps) * 2 * Math.PI;
+        var angle = radiansPerStep * i;
         var r = params.semiMajorAxis * (1 - params.eccentricity * params.eccentricity) / (1 + params.eccentricity * Math.cos(angle));
         var x = r * Math.cos(angle);
         var y = r * Math.sin(angle);
-        path.push(new BABYLON.Vector3(x, 0, y));
+        var z = 0; // For simplicity in this example
+
+        if (orbitIndex === 0) {
+            // No additional transformations for the white orbit
+        } else if (orbitIndex === 1) {
+            // Apply inclination transformation for the green orbit
+            var inclinedY = y * Math.cos(params.inclination);
+            z = y * Math.sin(params.inclination);
+            y = inclinedY;
+        } else if (orbitIndex === 2) {
+            // Apply longitude of ascending node transformation for the blue orbit
+            var cosLAN = Math.cos(params.longitudeOfAscendingNode);
+            var sinLAN = Math.sin(params.longitudeOfAscendingNode);
+            var tempX = x * cosLAN - y * sinLAN;
+            y = x * sinLAN + y * cosLAN;
+            x = tempX;
+        }
+
+        path.push(new BABYLON.Vector3(x, y, z));
     }
+
     return path;
 }
 
-function resetSimulation() {
-    console.log("Simulation reset");
-    location.reload();  // Simplest way to reset everything
+function setupParameterListeners() {
+    ['semiMajorAxis', 'eccentricity', 'argumentOfPeriapsis', 'trueAnomaly'].forEach(param => {
+        document.getElementById(param).addEventListener('input', () => updateOrbitVisualization(0, getOrbitParams()));
+    });
+    document.getElementById('inclination').addEventListener('input', () => updateOrbitVisualization(1, getOrbitParams()));
+    document.getElementById('longitudeOfAscendingNode').addEventListener('input', () => updateOrbitVisualization(2, getOrbitParams()));
 }
 
-function toggleVolume() {
-    console.log("Volume toggled");
-}
 
-function showInfo() {
-    alert("Orbital Mechanics Visualization\nAdjust parameters to see changes.");
-}
+window.resetSimulation = function() {
+    location.reload();
+};
 
 window.toggleSimulation = function() {
     simulationRunning = !simulationRunning;
@@ -117,3 +135,4 @@ window.setSpeedFactor = function(factor) {
     speedFactor = factor;
     console.log(`Speed factor set to ${factor}x`);
 };
+
