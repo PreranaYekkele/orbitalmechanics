@@ -6,16 +6,42 @@ var earth;
 var canvas = document.getElementById('renderCanvas');
 var engine = new BABYLON.Engine(canvas, true);
 
+
+// New global variables for launch feature
+var launchStations = [];
+var satellites = [];
+var selectedLaunchStation = null;
+
+// Constants
+const EARTH_RADIUS = 5; // Earth radius in scene units
+const G = 6.67430e-11; // Gravitational constant
+const EARTH_MASS = 5.972e24; // Earth mass in kg
+
+// window.addEventListener('DOMContentLoaded', function() {
+//     scene = createScene();
+//     document.getElementById('addOrbitButton').addEventListener('click', function() {
+//         const params = getOrbitParams();
+//         orbits.forEach((orbit, index) => updateOrbitVisualization(index, params));
+//         document.getElementById('orbitParameters').style.display = 'block';
+//     });
+//     setupParameterListeners();
+//     engine.runRenderLoop(function () {
+//         if (simulationRunning) {
+//             scene.render();
+//             earth.rotation.y += 0.001 * speedFactor;
+//         }
+//     });
+//     window.addEventListener('resize', function() {
+//         engine.resize();
+//     });
+// });
+
 window.addEventListener('DOMContentLoaded', function() {
     scene = createScene();
-    document.getElementById('addOrbitButton').addEventListener('click', function() {
-        const params = getOrbitParams();
-        orbits.forEach((orbit, index) => updateOrbitVisualization(index, params));
-        document.getElementById('orbitParameters').style.display = 'block';
-    });
-    setupParameterListeners();
+    setupEventListeners();
     engine.runRenderLoop(function () {
         if (simulationRunning) {
+            updateSimulation();
             scene.render();
             earth.rotation.y += 0.001 * speedFactor;
         }
@@ -24,6 +50,154 @@ window.addEventListener('DOMContentLoaded', function() {
         engine.resize();
     });
 });
+
+function setupEventListeners() {
+    document.getElementById('addOrbitButton').addEventListener('click', function() {
+        const params = getOrbitParams();
+        orbits.forEach((orbit, index) => updateOrbitVisualization(index, params));
+        document.getElementById('orbitParameters').style.display = 'block';
+    });
+    
+    document.getElementById('addlaunchButton').addEventListener('click', function() {
+        const launchName = document.getElementById('launchName').value;
+        if (launchName) {
+            createLaunchStation(launchName);
+        }
+    });
+    
+    document.getElementById('fire').addEventListener('click', launchSatellite);
+    
+    setupParameterListeners();
+}
+
+function createLaunchStation(name) {
+    const omega = parseFloat(document.getElementById('omega').value) || 0;
+    const phi = parseFloat(document.getElementById('phi').value) || 0;
+    const lambda = parseFloat(document.getElementById('lambda').value) || 0;
+
+    // Convert spherical coordinates to Cartesian
+    const theta = (90 - phi) * (Math.PI / 180);
+    const lon = lambda * (Math.PI / 180);
+    
+    const position = new BABYLON.Vector3(
+        EARTH_RADIUS * Math.sin(theta) * Math.cos(lon),
+        EARTH_RADIUS * Math.cos(theta),
+        EARTH_RADIUS * Math.sin(theta) * Math.sin(lon)
+    );
+
+    // Create launch station visualization
+    const station = BABYLON.MeshBuilder.CreateBox(name, {
+        height: 0.2,
+        width: 0.2,
+        depth: 0.2
+    }, scene);
+    
+    station.position = position;
+    station.rotation = new BABYLON.Vector3(0, lon, theta);
+
+    // Create material for the launch station
+    const material = new BABYLON.StandardMaterial(name + "_material", scene);
+    material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+    station.material = material;
+
+    const launchStation = {
+        name: name,
+        mesh: station,
+        position: position,
+        omega: omega,
+        phi: phi,
+        lambda: lambda
+    };
+
+    launchStations.push(launchStation);
+    selectedLaunchStation = launchStation;
+    
+    updateLaunchInfo();
+    document.getElementById('launchSection').style.display = 'block';
+    return launchStation;
+}
+
+function launchSatellite() {
+    if (!selectedLaunchStation) return;
+
+    // Get launch parameters
+    const radialDv = parseFloat(document.querySelector('td:first-child').textContent) || 0;
+    const normalDv = parseFloat(document.querySelector('td:nth-child(2)').textContent) || 0;
+    const tangentialDv = parseFloat(document.querySelector('td:nth-child(3)').textContent) || 0;
+
+    // Create satellite visualization
+    const satellite = BABYLON.MeshBuilder.CreateSphere("satellite", {
+        diameter: 0.2
+    }, scene);
+
+    // Position satellite at launch station
+    satellite.position = selectedLaunchStation.position.clone();
+
+    // Calculate initial velocity components
+    const escapeVelocity = Math.sqrt(2 * G * EARTH_MASS / (EARTH_RADIUS * 1000));
+    const initialVelocity = new BABYLON.Vector3(
+        radialDv * escapeVelocity,
+        normalDv * escapeVelocity,
+        tangentialDv * escapeVelocity
+    );
+
+    // Create material for the satellite
+    const material = new BABYLON.StandardMaterial("satellite_material", scene);
+    material.diffuseColor = new BABYLON.Color3(0, 1, 0);
+    satellite.material = material;
+
+    // Add satellite to tracking array
+    satellites.push({
+        mesh: satellite,
+        velocity: initialVelocity,
+        trail: []
+    });
+}
+
+function updateSimulation() {
+    const dt = 0.016 * speedFactor; // Time step
+
+    satellites.forEach(satellite => {
+        // Update position based on velocity
+        satellite.mesh.position.addInPlace(satellite.velocity.scale(dt));
+
+        // Calculate gravitational force
+        const distanceVector = satellite.mesh.position.clone();
+        const distance = distanceVector.length();
+        const forceMagnitude = G * EARTH_MASS / (distance * distance);
+        const force = distanceVector.normalize().scale(-forceMagnitude);
+
+        // Update velocity based on gravitational force
+        satellite.velocity.addInPlace(force.scale(dt));
+
+        // Update trail
+        satellite.trail.push(satellite.mesh.position.clone());
+        if (satellite.trail.length > 100) {
+            satellite.trail.shift();
+        }
+
+        // Update trail visualization
+        if (satellite.trailMesh) {
+            satellite.trailMesh.dispose();
+        }
+        satellite.trailMesh = BABYLON.MeshBuilder.CreateLines("trail", {
+            points: satellite.trail
+        }, scene);
+        satellite.trailMesh.color = new BABYLON.Color3(0, 1, 0);
+    });
+}
+
+function updateLaunchInfo() {
+    if (!selectedLaunchStation) return;
+
+    const height = 0;
+    const velocity = Math.sqrt(G * EARTH_MASS / (EARTH_RADIUS * 1000 + height));
+    const acceleration = G * EARTH_MASS / Math.pow(EARTH_RADIUS * 1000 + height, 2);
+
+    document.querySelector('#launchInfo .left-part').textContent = `h=${height.toFixed(4)}km`;
+    document.querySelector('#launchInfo .right-part').textContent = `a=${acceleration.toFixed(4)}g`;
+    document.querySelector('#launchInfo:nth-child(5) .left-part').textContent = `v=${velocity.toFixed(2)}m/s`;
+}
 
 function createScene() {
     var scene = new BABYLON.Scene(engine);
@@ -136,3 +310,15 @@ window.setSpeedFactor = function(factor) {
     console.log(`Speed factor set to ${factor}x`);
 };
 
+window.toggleLaunchElements = function() {
+    const launchSection = document.getElementById('launchSection');
+    const controlTable = document.getElementById('control-table');
+    
+    if (launchSection.style.display === 'none') {
+        launchSection.style.display = 'block';
+        controlTable.style.display = 'block';
+    } else {
+        launchSection.style.display = 'none';
+        controlTable.style.display = 'none';
+    }
+};
