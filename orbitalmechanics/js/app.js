@@ -5,6 +5,7 @@ var speedFactor = 1;
 var earth;
 var canvas = document.getElementById('renderCanvas');
 var engine = new BABYLON.Engine(canvas, true);
+let orbitPlane = null;
 
 
 // New global variables for launch feature
@@ -58,11 +59,14 @@ function setupEventListeners() {
         document.getElementById('orbitParameters').style.display = 'block';
     });
     
-    document.getElementById('addlaunchButton').addEventListener('click', function() {
+    document.getElementById('addlaunchButton').addEventListener('click', function(event) {
+        event.stopPropagation();
+
         const launchName = document.getElementById('launchName').value;
         if (launchName) {
             createLaunchStation(launchName);
         }
+
     });
     
     document.getElementById('fire').addEventListener('click', launchSatellite);
@@ -111,10 +115,16 @@ function createLaunchStation(name) {
 
     launchStations.push(launchStation);
     selectedLaunchStation = launchStation;
+
+    if(!orbitPlane){
+        createFilledOrbit();
+    }
+    updateFilledOrbit();
     
     updateLaunchInfo();
     document.getElementById('launchSection').style.display = 'block';
     return launchStation;
+
 }
 
 function launchSatellite() {
@@ -293,7 +303,53 @@ function setupParameterListeners() {
     });
     document.getElementById('inclination').addEventListener('input', () => updateOrbitVisualization(1, getOrbitParams()));
     document.getElementById('longitudeOfAscendingNode').addEventListener('input', () => updateOrbitVisualization(2, getOrbitParams()));
+    ['omega', 'phi', 'lambda'].forEach(param => {
+        document.getElementById(param).addEventListener('input', updateFilledOrbit);
+    });
 }
+
+function createFilledOrbit() {
+    // Dispose the previous orbit plane if it exists
+    if (orbitPlane) orbitPlane.dispose();
+
+    // Create a disc with a radius (adjustable)
+    orbitPlane = BABYLON.MeshBuilder.CreateDisc("orbitPlane", {
+        radius: 40,  // Adjust this radius as per the orbit size you want
+        tessellation: 64,  // Smoothness of the disc
+        sideOrientation: BABYLON.Mesh.DOUBLESIDE  // Show both sides
+    }, scene);
+
+    // Create a green material for the filled plane
+    const orbitMaterial = new BABYLON.StandardMaterial("orbitMaterial", scene);
+    orbitMaterial.diffuseColor = new BABYLON.Color3(0, 1, 0);  // Green color
+    orbitMaterial.alpha = 0.5;  // Make it semi-transparent if needed
+    orbitPlane.material = orbitMaterial;
+
+    // Initial position of the plane (near the Earth)
+    orbitPlane.position = new BABYLON.Vector3(0, EARTH_RADIUS + 5, 0);
+}
+
+function updateFilledOrbit() {
+    if (!orbitPlane) return;  // If the orbit plane is not created yet
+
+    const omega = parseFloat(document.getElementById('omega').value) || 0;
+    const phi = parseFloat(document.getElementById('phi').value) || 0;
+    const lambda = parseFloat(document.getElementById('lambda').value) || 0;
+
+    // Convert to radians
+    const omegaRad = omega * (Math.PI / 180);
+    const phiRad = phi * (Math.PI / 180);
+    const lambdaRad = lambda * (Math.PI / 180);
+
+    // Apply rotations based on omega, phi, and lambda to tilt the filled orbit
+    orbitPlane.rotation.x = phiRad;    // Pitch
+    orbitPlane.rotation.y = lambdaRad; // Yaw
+    orbitPlane.rotation.z = omegaRad;  // Roll
+
+    // Optionally adjust position if needed, but keeping it near the Earth
+    orbitPlane.position = selectedLaunchStation ? selectedLaunchStation.position.clone() : new BABYLON.Vector3(0, EARTH_RADIUS + 1, 0);
+}
+
 
 
 window.resetSimulation = function() {
