@@ -36,7 +36,80 @@
         </div>
         <div class="input-group" style="margin-top:10px ;">
             <input type="text" id="launchName" placeholder="Enter launch name">
-            <button id="addlaunchButton">Add Launch</button>
+            <button id="addlaunchButton" onclick="toggleLaunchElements()">Add Launch</button>
+        </div>
+        <div id="launchSection" style="display: none;">
+        <div class="launch-params" >
+            <label>Ω <input type="number" id="omega" step="0.1" placeholder="0°"></label>
+            <label>φ <input type="number" id="phi" step="0.1" placeholder="0°"></label>
+            <label>λ <input type="number" id="lambda" step="0.1" placeholder="0°"></label>
+            <label id="launchInfo"><span class="left-part" style="margin-right: 40px;">h=0.0000km</span><span class="right-part">a=0.0000g</span></label>
+            <label id="launchInfo"><span class="left-part" style="margin-right: 35px;">v=463.31m/s</span><span class="right-part">at=0.0000g</span></label>
+            <label id="launchInfo"><span class="left-part" style="margin-right: 70px;">ε=-1.0gr</span><span class="right-part">H=0.0586√(gr)r</span></label>
+            <label id="launchInfo"><span class="left-part" style="margin-right: 87px;">e=1.0</span><span class="right-part">a=0.501</span></label>
+            <label id="launchInfo"><span class="left-part" style="margin-right: 65px;">i=0.000°</span><span class="right-part">ω=0.000°</span></label>
+        </div> 
+        <div id="control-table" style="display: none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>radial Δv/Δt</th>
+                        <th>normal Δv/Δt</th>
+                        <th>tangential Δv/Δt</th>
+                        <th colspan="5">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>0g</td>
+                        <td>0g</td>
+                        <td>0g</td>
+                        <td rowspan="8" class="buttons">
+                            <button id="addPoint">add point</button>
+                            <button id="clearPoints">clear points</button>
+                            <button id="shareUrl">share url</button>
+                            <button id="fire" class="fire">fire</button>
+                            <button id="planeLock" class="plane-lock">plane lock</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>1g</td>
+                        <td>0g</td>
+                        <td>1g</td>
+                    </tr>
+                    <tr>
+                        <td>2g</td>
+                        <td>1g</td>
+                        <td>1g</td>
+                    </tr>
+                    <tr>
+                        <td>3g</td>
+                        <td>2g</td>
+                        <td>1g</td>
+                    </tr>
+                    <tr>
+                        <td>4g</td>
+                        <td>3g</td>
+                        <td>2g</td>
+                    </tr>
+                    <tr>
+                        <td>0g</td>
+                        <td>0g</td>
+                        <td>0g</td>
+                    </tr>
+                    <tr>
+                        <td>-1g</td>
+                        <td>-1g</td>
+                        <td>-1g</td>
+                    </tr>
+                    <tr>
+                        <td>-2g</td>
+                        <td>-2g</td>
+                        <td>-2g</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         </div>
     </div>
     <canvas id="renderCanvas" touch-action="none"></canvas>
