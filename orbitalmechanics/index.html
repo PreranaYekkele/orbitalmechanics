@@ -21,23 +21,36 @@
         .launch-params input[type="number"] {
             width: 80px;
         }
+
+        #control-table{
+            width: 50px;
+            font-size: 0.85em;
+            padding: 8px;
+        }
         
         #control-table table {
-            width: 100%;
+            width: 50%;
+            float: right;
             border-collapse: collapse;
             margin-top: 10px;
         }
         
         #control-table th, #control-table td {
             border: 1px solid #ccc;
-            padding: 5px;
+            padding: 3px;
             text-align: center;
+            font-size: 0.85em;
         }
         
         .buttons {
             display: flex;
             flex-direction: column;
             gap: 5px;
+        }
+
+        .buttons button {
+            padding: 4px 8px; /* Reduced padding for buttons */
+            font-size: 0.85em;
         }
         
         .fire {
@@ -137,7 +150,7 @@
                 </div>
             </div>
 
-            <div id="control-table" style="display: none;">
+            <div id="control-table" style="display: none;"> 
                 <table>
                     <thead>
                         <tr>
