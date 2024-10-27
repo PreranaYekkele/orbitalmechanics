@@ -272,22 +272,22 @@ function calculateOrbitPath(params, orbitIndex) {
         var angle = radiansPerStep * i;
         var r = params.semiMajorAxis * (1 - params.eccentricity * params.eccentricity) / (1 + params.eccentricity * Math.cos(angle));
         var x = r * Math.cos(angle);
-        var y = r * Math.sin(angle);
-        var z = 0; // For simplicity in this example
+        var y = 0
+        var z = r * Math.sin(angle);
 
         if (orbitIndex === 0) {
             // No additional transformations for the white orbit
         } else if (orbitIndex === 1) {
             // Apply inclination transformation for the green orbit
-            var inclinedY = y * Math.cos(params.inclination);
-            z = y * Math.sin(params.inclination);
-            y = inclinedY;
+            var inclinedZ = z * Math.cos(params.inclination);
+            y = z * Math.sin(params.inclination);
+            z = inclinedZ;
         } else if (orbitIndex === 2) {
             // Apply longitude of ascending node transformation for the blue orbit
             var cosLAN = Math.cos(params.longitudeOfAscendingNode);
             var sinLAN = Math.sin(params.longitudeOfAscendingNode);
-            var tempX = x * cosLAN - y * sinLAN;
-            y = x * sinLAN + y * cosLAN;
+            var tempX = x * cosLAN - z * sinLAN;
+            z = x * sinLAN + z * cosLAN;
             x = tempX;
         }
 
@@ -296,6 +296,7 @@ function calculateOrbitPath(params, orbitIndex) {
 
     return path;
 }
+
 
 function setupParameterListeners() {
     ['semiMajorAxis', 'eccentricity', 'argumentOfPeriapsis', 'trueAnomaly'].forEach(param => {
