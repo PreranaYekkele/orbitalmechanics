@@ -3,11 +3,14 @@ body, html {
     height: 100%;
     margin: 0;
     padding: 0;
+    position: sticky;
     overflow: auto;
     background-color: black;
     color:  #ccc;
     font-family: 'Lucida Grande', Arial ,sans-serif;
 }
+
+
 
 #toolbar, #control-panel {
     position: fixed; 
@@ -21,18 +24,25 @@ body, html {
     z-index: 1000; 
 }
 
+
+
 #control-panel {
-    top: 50px;
-    left: 20px;
-    width: 300px;
+    position: fixed;
+    top: 50px; /* Start from the top */
+    left: 30px; /* Align to the left side */
+    width: 300px; /* Adjust width as necessary */
+    height: 100vh; /* Full viewport height */
     display: flex;
     flex-direction: column;
     align-items: start;
-    padding: 10px;
+    padding: 8px;
     background-color: rgba(0, 0, 0, 0.8);
-    border-radius: 5px;
+    border-radius: 0 5px 5px 0; /* Smooth right corners only */
+    overflow-y: auto; /* Enables vertical scrolling */
     z-index: 15;
 }
+
+
 
 canvas {
     position: absolute;
