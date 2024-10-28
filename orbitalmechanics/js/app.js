@@ -1,6 +1,3 @@
-if (window.innerWidth < 768) {
-    engine.setHardwareScalingLevel(2); // Reduces resolution for better performance
-}
 
 var scene;
 var orbits = []; // Array to hold all the orbits
@@ -10,6 +7,9 @@ var earth;
 var canvas = document.getElementById('renderCanvas');
 var engine = new BABYLON.Engine(canvas, true);
 let orbitPlane = null;
+
+
+
 
 
 // New global variables for launch feature
