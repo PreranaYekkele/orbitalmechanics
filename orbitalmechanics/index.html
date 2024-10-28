@@ -4,9 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orbital Mechanics</title>
+    <style>
+        #body{
+            position: sticky;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+        .launch-params {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .launch-params label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .launch-params input[type="number"] {
+            width: 80px;
+        }
+
+        #control-table{
+            width: 50px;
+            font-size: 0.85em;
+            padding: 8px;
+        }
+        
+        #control-table table {
+            width: 50%;
+            float: right;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        #control-table th, #control-table td {
+            border: 1px solid #ccc;
+            padding: 3px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+        
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .buttons button {
+            padding: 4px 8px; /* Reduced padding for buttons */
+            font-size: 0.85em;
+        }
+        
+        .fire {
+            background-color: #ff4444;
+            color: white;
+        }
+        
+        .plane-lock {
+            background-color: #4444ff;
+            color: white;
+        }
+
+        #launchInfo {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        .left-part {
+            margin-right: 40px;
+        }
+
+        #orbitParameters label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px 0;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+    </style>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    
     <div id="toolbar">
         <button onclick="toggleSimulation()">⏯️</button>
         <button onclick="toggleAxis()">📏</button>
@@ -26,13 +114,30 @@
             <input type="text" id="orbitName" placeholder="Enter orbit name">
             <button id="addOrbitButton">Add Orbit</button>
         </div>
-        <div id="orbitParameters" style="display: none;">
-            <label>a <input type="range" id="semiMajorAxis" min="1" max="10" value="2.7" step="0.1" onchange="updateOrbit()"><span id="semiMajorAxisValue">2.7</span></label>
-            <label>e  <input type="range" id="eccentricity" min="0" max="1" value="0.6" step="0.01" onchange="updateOrbit()"><span id="eccentricityValue">0.6</span></label>
-            <label>i  <input type="range" id="inclination" min="0" max="180" value="0" step="1" onchange="updateOrbit()"><span id="inclinationValue">0</span></label>
-            <label>ω  <input type="range" id="argumentOfPeriapsis" min="0" max="360" value="90" step="1" onchange="updateOrbit()"><span id="argumentOfPeriapsisValue">90</span></label>
-            <label>Ω  <input type="range" id="longitudeOfAscendingNode" min="0" max="360" value="0" step="1" onchange="updateOrbit()"><span id="longitudeOfAscendingNodeValue">0</span></label>
-            <label>ν <input type="range" id="trueAnomaly" min="0" max="360" value="0" step="1" onchange="updateOrbit()"><span id="trueAnomalyValue">0</span></label>
+        <div id="orbitParameters">
+            <label for="semiMajorAxis">Semi-major Axis (a):</label>
+            <input type="range" id="semiMajorAxis" min="1" max="10" value="2.7" step="0.1">
+            <span id="semiMajorAxisValue">2.7 AU</span>
+    
+            <label for="eccentricity">Eccentricity (e):</label>
+            <input type="range" id="eccentricity" min="0" max="1" value="0.6" step="0.01">
+            <span id="eccentricityValue">0.6</span>
+    
+            <label for="inclination">Inclination (i):</label>
+            <input type="range" id="inclination" min="0" max="180" value="0" step="1">
+            <span id="inclinationValue">0°</span>
+    
+            <label for="argumentOfPeriapsis">Argument of Periapsis (ω):</label>
+            <input type="range" id="argumentOfPeriapsis" min="0" max="360" value="90" step="1">
+            <span id="argumentOfPeriapsisValue">90°</span>
+    
+            <label for="longitudeOfAscendingNode">Longitude of Ascending Node (Ω):</label>
+            <input type="range" id="longitudeOfAscendingNode" min="0" max="360" value="0" step="1">
+            <span id="longitudeOfAscendingNodeValue">0°</span>
+    
+            <label for="trueAnomaly">True Anomaly (ν):</label>
+            <input type="range" id="trueAnomaly" min="0" max="360" value="0" step="1">
+            <span id="trueAnomalyValue">0°</span>
         </div>
 
         <div class="input-group" style="margin-top:10px;">
@@ -107,5 +212,6 @@
     <canvas id="renderCanvas" touch-action="none"></canvas>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="js/app.js"></script>
+    
 </body>
 </html>
