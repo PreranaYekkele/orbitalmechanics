@@ -1,3 +1,7 @@
+if (window.innerWidth < 768) {
+    engine.setHardwareScalingLevel(2); // Reduces resolution for better performance
+}
+
 var scene;
 var orbits = []; // Array to hold all the orbits
 var simulationRunning = true;
@@ -201,12 +205,12 @@ function updateLaunchInfo() {
     if (!selectedLaunchStation) return;
 
     const height = 0;
-    const velocity = Math.sqrt(G * EARTH_MASS / (EARTH_RADIUS * 1000 + height));
-    const acceleration = G * EARTH_MASS / Math.pow(EARTH_RADIUS * 1000 + height, 2);
+    const v = Math.sqrt(G * EARTH_MASS / (EARTH_RADIUS * 1000 + height));
+    const a= G * EARTH_MASS / Math.pow(EARTH_RADIUS * 1000 + height, 2);
 
     document.querySelector('#launchInfo .left-part').textContent = `h=${height.toFixed(4)}km`;
-    document.querySelector('#launchInfo .right-part').textContent = 'a=${acceleration.toFixed(4)}g';
-    document.querySelector('#launchInfo:nth-child(5) .left-part').textContent = 'v=${velocity.toFixed(2)}m/s';
+    document.querySelector('#launchInfo .right-part').textContent = 'a=${a.toFixed(4)}g';
+    document.querySelector('#launchInfo:nth-child(5) .left-part').textContent = 'v=${v.toFixed(2)}m/s';
 }
 
 function createScene() {
@@ -225,6 +229,13 @@ function createScene() {
 
     return scene;
 }
+
+document.getElementById('trueAnomaly').addEventListener('input', function() {
+    var params = getOrbitParams();
+    updateOrbitVisualization(0, params); // Update the orbit itself
+    updateSatellitePosition(params.trueAnomaly, orbits[0].getVerticesData(BABYLON.VertexBuffer.PositionKind)); // Update satellite position
+});
+
 
 function getOrbitParams() {
     return {
@@ -246,22 +257,32 @@ function updateOrbitVisualization(orbitIndex, params) {
     orbits[orbitIndex] = createOrbit(params, orbitIndex);
 }
 
+var satelliteOnWhiteOrbit = null; // This will store the satellite mesh on the white orbit
+
+
 function createOrbit(params, orbitIndex) {
     var path = calculateOrbitPath(params, orbitIndex);
     var orbit = BABYLON.MeshBuilder.CreateLines("orbit" + orbitIndex, { points: path }, scene);
-    switch (orbitIndex) {
-        case 0: // White orbit
-            orbit.color = new BABYLON.Color3(1, 1, 1);
-            break;
-        case 1: // Green orbit
-            orbit.color = new BABYLON.Color3(0, 1, 0);
-            break;
-        case 2: // Blue orbit
-            orbit.color = new BABYLON.Color3(0, 0, 1);
-            break;
+    orbit.color = orbitIndex === 0 ? new BABYLON.Color3(1, 1, 1) :
+                  orbitIndex === 1 ? new BABYLON.Color3(0, 1, 0) :
+                                     new BABYLON.Color3(0, 0, 1);
+    
+    if (orbitIndex === 0) {
+        if (satelliteOnWhiteOrbit) satelliteOnWhiteOrbit.dispose(); // Dispose old satellite
+        satelliteOnWhiteOrbit = BABYLON.MeshBuilder.CreateSphere("satellite", { diameter: 0.5 }, scene);
+        satelliteOnWhiteOrbit.material = new BABYLON.StandardMaterial("satelliteMaterial", scene);
+        satelliteOnWhiteOrbit.material.diffuseColor = new BABYLON.Color3(1, 0, 0); // Color the satellite red for visibility
+        updateSatellitePosition(params.trueAnomaly, path); // Position it on the orbit
     }
+
     return orbit;
 }
+
+function updateSatellitePosition(trueAnomaly, path) {
+    var step = Math.round(trueAnomaly / (360 / path.length)); // Calculate the position index on the path
+    satelliteOnWhiteOrbit.position = path[step % path.length]; // Update position, using modulo in case of out-of-bounds
+}
+
 
 function calculateOrbitPath(params, orbitIndex) {
     var path = [];
@@ -272,22 +293,22 @@ function calculateOrbitPath(params, orbitIndex) {
         var angle = radiansPerStep * i;
         var r = params.semiMajorAxis * (1 - params.eccentricity * params.eccentricity) / (1 + params.eccentricity * Math.cos(angle));
         var x = r * Math.cos(angle);
-        var y = r * Math.sin(angle);
-        var z = 0; // For simplicity in this example
+        var y = 0
+        var z = r * Math.sin(angle);
 
         if (orbitIndex === 0) {
             // No additional transformations for the white orbit
         } else if (orbitIndex === 1) {
             // Apply inclination transformation for the green orbit
-            var inclinedY = y * Math.cos(params.inclination);
-            z = y * Math.sin(params.inclination);
-            y = inclinedY;
+            var inclinedZ = z * Math.cos(params.inclination);
+            y = z * Math.sin(params.inclination);
+            z = inclinedZ;
         } else if (orbitIndex === 2) {
             // Apply longitude of ascending node transformation for the blue orbit
             var cosLAN = Math.cos(params.longitudeOfAscendingNode);
             var sinLAN = Math.sin(params.longitudeOfAscendingNode);
-            var tempX = x * cosLAN - y * sinLAN;
-            y = x * sinLAN + y * cosLAN;
+            var tempX = x * cosLAN - z * sinLAN;
+            z = x * sinLAN + z * cosLAN;
             x = tempX;
         }
 
@@ -296,6 +317,7 @@ function calculateOrbitPath(params, orbitIndex) {
 
     return path;
 }
+
 
 function setupParameterListeners() {
     ['semiMajorAxis', 'eccentricity', 'argumentOfPeriapsis', 'trueAnomaly'].forEach(param => {
@@ -375,3 +397,4 @@ window.toggleLaunchElements = function() {
         controlTable.style.display = 'block';
     } 
 };
+
